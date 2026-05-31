@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PrecisionPrint – Webshop</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey: "AIzaSyATrlOQ-bggmyBayiW1dPy0XhzNEDwltBQ",
+    authDomain: "precisionprint-1eb8e.firebaseapp.com",
+    projectId: "precisionprint-1eb8e",
+    storageBucket: "precisionprint-1eb8e.firebasestorage.app",
+    messagingSenderId: "713115563711",
+    appId: "1:713115563711:web:d601c57cee63973dbcf80a"
+  });
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;
+  --surface:#13131a;
+  --card:#1a1a24;
+  --accent:#00e5ff;
+  --accent2:#ff6b35;
+  --text:#e8e8f0;
+  --muted:#6b6b7a;
+  --border:rgba(0,229,255,.12);
+  --radius:14px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+header{
+  background:linear-gradient(135deg,#0d0d18 0%,#0a0a0f 100%);
+  border-bottom:1px solid var(--border);
+  padding:18px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(12px);
+}
+.logo{
+  font-family:'Bebas Neue',cursive;
+  font-size:1.7rem;
+  letter-spacing:2px;
+  line-height:1;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.logo-bigp{
+  font-size:3rem;
+  display:inline-block;
+  vertical-align:bottom;
+  line-height:.92;
+}
+.logo-sub{
+  font-size:.82rem;
+  font-family:'Outfit',sans-serif;
+  -webkit-text-fill-color:var(--muted);
+  display:block;
+  letter-spacing:3px;
+  margin-top:3px;
+  font-weight:400;
+}
+.logo-momo{
+  font-size:.7rem;
+  letter-spacing:2px;
+  -webkit-text-fill-color:rgba(255,107,53,.65);
+  font-style:italic;
+  margin-left:4px;
+}
+.header-right{display:flex;align-items:center;gap:12px}
+.ig-link{
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);
+  color:#fff;text-decoration:none;
+  padding:8px 16px;border-radius:8px;
+  font-size:.85rem;font-weight:600;
+  transition:opacity .2s;
+}
+.ig-link:hover{opacity:.85}
+
+/* SEARCH */
+.search-wrap{padding:28px 24px 8px;max-width:1400px;margin:0 auto}
+.search-box{
+  width:100%;padding:14px 20px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:1rem;font-family:'Outfit',sans-serif;
+  outline:none;transition:border-color .2s;
+}
+.search-box:focus{border-color:var(--accent)}
+.search-box::placeholder{color:var(--muted)}
+
+/* TABS */
+.tabs{padding:16px 24px 0;max-width:1400px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap}
+.tab{
+  padding:8px 18px;border-radius:20px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;
+  font-size:.88rem;cursor:pointer;transition:all .2s;
+}
+.tab:hover{border-color:var(--accent);color:var(--accent)}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
+
+/* GRID (filtered view) */
+.grid-wrap{padding:24px;max-width:1400px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+
+/* CARD */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;cursor:pointer;
+  transition:transform .22s,box-shadow .22s,border-color .22s;
+  animation:fadeUp .5s ease both;
+  flex-shrink:0;
+}
+.card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,229,255,.15);border-color:rgba(0,229,255,.4)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.card-img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--surface)}
+.card-img--contain{object-fit:contain;background:var(--card);padding:10px;}
+.card-body{padding:12px 14px 14px}
+.card-code{font-size:.68rem;font-weight:700;letter-spacing:2px;color:var(--accent2);margin-bottom:2px}
+.card-cat{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px}
+.card-title{font-size:.92rem;font-weight:600;line-height:1.3;margin-bottom:4px}
+.card-stats{font-size:.74rem;color:var(--muted);margin-top:3px}
+.card-btn{
+  display:block;width:100%;margin-top:10px;
+  padding:8px;text-align:center;
+  background:transparent;border:1px solid var(--accent);
+  border-radius:8px;color:var(--accent);font-family:'Outfit',sans-serif;
+  font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;
+}
+.card-btn:hover{background:var(--accent);color:#000}
+
+/* EMPTY */
+.empty{text-align:center;padding:80px 20px;color:var(--muted)}
+.empty-icon{font-size:3rem;margin-bottom:16px}
+
+/* ===== NETFLIX ROWS ===== */
+.netflix-wrap{padding:8px 0 40px}
+.netflix-row{margin-bottom:28px}
+.netflix-row-header{
+  display:flex;align-items:baseline;gap:14px;
+  padding:0 28px 14px;
+  max-width:100%;
+}
+.netflix-row-title{
+  font-family:'Bebas Neue',cursive;
+  font-size:2rem;letter-spacing:2px;color:var(--text);
+}
+.netflix-row-count{
+  font-size:.8rem;color:var(--muted);
+  background:rgba(255,255,255,.06);
+  padding:3px 10px;border-radius:20px;
+  border:1px solid var(--border);
+}
+.netflix-row-see-all{
+  margin-left:auto;font-size:.8rem;color:var(--accent);
+  cursor:pointer;background:none;border:none;
+  font-family:'Outfit',sans-serif;font-weight:600;
+  transition:opacity .2s;padding:4px 8px;
+  border-radius:6px;
+}
+.netflix-row-see-all:hover{opacity:.7;background:rgba(0,229,255,.08)}
+.netflix-scroll{
+  display:flex;gap:14px;
+  overflow-x:auto;
+  padding:4px 28px 16px;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+}
+.netflix-scroll::-webkit-scrollbar{height:20px}
+.netflix-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,.04);border-radius:20px}
+.netflix-scroll::-webkit-scrollbar-thumb{background:rgba(180,180,180,.35);border-radius:20px;border:4px solid transparent;background-clip:padding-box}
+.netflix-scroll::-webkit-scrollbar-thumb:hover{background:rgba(180,180,180,.6);border-radius:20px;background-clip:padding-box}
+.netflix-card{
+  width:240px;
+  flex-shrink:0;
+  scroll-snap-align:start;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;cursor:pointer;
+  transition:transform .22s,box-shadow .22s,border-color .22s;
+  position:relative;
+}
+.netflix-card:hover{
+  transform:scale(1.04);
+  box-shadow:0 12px 36px rgba(0,229,255,.18);
+  border-color:rgba(0,229,255,.4);
+  z-index:2;
+}
+.netflix-card-img{
+  width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--surface);
+}
+.netflix-card-img--contain{
+  object-fit:contain;background:var(--card);padding:8px;
+}
+.netflix-num{
+  position:absolute;top:6px;left:6px;
+  font-family:'Outfit',sans-serif;
+  font-size:.65rem;font-weight:700;letter-spacing:1px;
+  background:rgba(10,10,15,.72);
+  color:var(--accent2);
+  padding:2px 6px;border-radius:5px;
+  backdrop-filter:blur(4px);
+}
+.netflix-card-body{padding:12px 14px 14px}
+.netflix-card-title{font-size:.95rem;font-weight:600;line-height:1.3;color:var(--text)}
+.netflix-card-stats{font-size:.78rem;color:var(--muted);margin-top:4px}
+.netflix-row-divider{
+  height:4px;background:var(--border);
+  margin:0 28px 40px;
+  border-radius:2px;
+}
+
+/* MODAL OVERLAY */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.82);backdrop-filter:blur(6px);
+  z-index:200;align-items:center;justify-content:center;padding:20px;
+}
+.overlay.open{display:flex}
+
+/* PRODUCT MODAL */
+.modal{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:18px;max-width:680px;width:100%;
+  max-height:90vh;overflow-y:auto;position:relative;
+  animation:popIn .28s ease;
+}
+@keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.modal-close{
+  position:absolute;top:14px;right:16px;
+  background:rgba(255,255,255,.08);border:none;border-radius:50%;
+  width:34px;height:34px;color:var(--text);font-size:1.2rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .2s;z-index:10;
+}
+.modal-close:hover{background:rgba(255,255,255,.18)}
+.modal-fav-btn{
+  position:absolute;top:14px;left:16px;
+  background:rgba(10,10,15,.72);backdrop-filter:blur(6px);
+  border:none;border-radius:50%;
+  width:34px;height:34px;font-size:1.1rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;z-index:10;
+}
+.modal-fav-btn:hover{transform:scale(1.15)}
+.modal-fav-btn.active{background:rgba(255,77,109,.2)}
+.modal-img{width:100%;max-height:320px;object-fit:cover;border-radius:14px 14px 0 0;background:var(--surface)}
+.modal-body{padding:24px}
+.modal-code{font-size:.75rem;font-weight:700;letter-spacing:2px;color:var(--accent2);margin-bottom:4px}
+.modal-cat{font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.modal-title{font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:1px;line-height:1.1;margin-bottom:6px}
+.modal-price-note{
+  background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.2);
+  border-radius:8px;padding:10px 14px;font-size:.88rem;
+  color:var(--accent);margin-bottom:14px;
+}
+.modal-desc{color:#c0c0d0;line-height:1.65;margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn-primary{
+  flex:1;padding:12px 20px;
+  background:linear-gradient(135deg,var(--accent),#0095aa);
+  border:none;border-radius:10px;color:#000;
+  font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700;
+  cursor:pointer;transition:opacity .2s;
+}
+.btn-primary:hover{opacity:.88}
+.btn-secondary{
+  flex:1;padding:12px 20px;
+  background:transparent;border:1px solid var(--muted);
+  border-radius:10px;color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:600;
+  cursor:pointer;transition:all .2s;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ORDER MODAL */
+.order-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(8px);
+  z-index:300;align-items:center;justify-content:center;padding:20px;
+}
+.order-overlay.open{display:flex}
+.order-modal{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:18px;max-width:460px;width:100%;
+  padding:32px 28px;position:relative;
+  animation:popIn .28s ease;text-align:center;
+}
+.order-close{
+  position:absolute;top:14px;right:16px;
+  background:rgba(255,255,255,.08);border:none;border-radius:50%;
+  width:34px;height:34px;color:var(--text);font-size:1.2rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.order-close:hover{background:rgba(255,255,255,.18)}
+.order-title{font-family:'Bebas Neue',cursive;font-size:1.8rem;margin-bottom:6px;color:var(--accent)}
+.order-sub{color:var(--muted);font-size:.9rem;margin-bottom:24px}
+.steps{text-align:left;margin-bottom:24px;display:flex;flex-direction:column;gap:12px}
+.step{display:flex;align-items:flex-start;gap:12px}
+.step-num{
+  min-width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#0095aa);
+  color:#000;font-weight:700;font-size:.8rem;
+  display:flex;align-items:center;justify-content:center;margin-top:2px;
+}
+.step-text{font-size:.9rem;line-height:1.5;color:#c0c0d0}
+.step-text strong{color:var(--text)}
+.ig-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);
+  color:#fff;text-decoration:none;padding:14px 28px;
+  border-radius:12px;font-family:'Outfit',sans-serif;
+  font-weight:700;font-size:1rem;margin-bottom:20px;
+  transition:opacity .2s;border:none;cursor:pointer;
+}
+.ig-btn:hover{opacity:.88}
+.qr-wrap{margin-top:4px}
+.qr-wrap img{width:130px;height:130px;border-radius:10px;border:2px solid var(--border)}
+.qr-label{font-size:.78rem;color:var(--muted);margin-top:6px}
+
+/* FOOTER */
+footer{
+  border-top:1px solid var(--border);
+  padding:28px 24px;text-align:center;
+  color:var(--muted);font-size:.85rem;margin-top:40px;
+}
+footer a{color:var(--accent);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+@media(max-width:600px){
+  .logo{font-size:1.5rem}
+  .modal-title{font-size:1.5rem}
+  .tabs{gap:6px}
+  .tab{padding:6px 12px;font-size:.8rem}
+  .netflix-card{width:180px}
+  .netflix-scroll{padding:4px 16px 16px;gap:10px}
+  .netflix-row-header{padding:0 16px 12px}
+  .netflix-row-title{font-size:1.3rem}
+}
+
+/* ── HEADER ICON BUTTONS ── */
+.header-btn{
+  position:relative;display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.06);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);padding:8px 14px;
+  font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.header-btn:hover{border-color:var(--accent);color:var(--accent)}
+.h-badge{
+  position:absolute;top:-7px;right:-7px;
+  background:var(--accent2);color:#fff;font-size:.6rem;font-weight:700;
+  min-width:18px;height:18px;border-radius:9px;padding:0 4px;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.h-badge.hidden{display:none}
+
+/* ── FAVORITE BUTTON ON CARDS ── */
+.fav-btn{
+  position:absolute;top:8px;right:8px;
+  width:30px;height:30px;
+  background:rgba(10,10,15,.72);backdrop-filter:blur(4px);
+  border:none;border-radius:50%;color:rgba(255,255,255,.45);
+  font-size:.95rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;z-index:3;
+}
+.fav-btn:hover{color:#ff4d6d;transform:scale(1.15)}
+.fav-btn.active{color:#ff4d6d;background:rgba(255,77,109,.18)}
+
+/* ── CART SIDEBAR ── */
+.cart-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:400;
+}
+.cart-overlay.open{display:block}
+.cart-panel{
+  position:fixed;top:0;right:0;bottom:0;width:380px;max-width:100vw;
+  background:var(--surface);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);
+  z-index:401;
+}
+.cart-overlay.open .cart-panel{transform:translateX(0)}
+.cart-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 20px 16px;border-bottom:1px solid var(--border);
+}
+.cart-title{font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:2px;color:var(--accent)}
+.cart-close{
+  background:rgba(255,255,255,.08);border:none;border-radius:50%;
+  width:34px;height:34px;color:var(--text);font-size:1.2rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .2s;
+}
+.cart-close:hover{background:rgba(255,255,255,.18)}
+.cart-items{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.cart-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--muted);gap:10px;padding:40px 0;
+}
+.cart-empty-icon{font-size:2.8rem}
+.cart-item{
+  display:flex;gap:12px;align-items:center;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:10px;
+}
+.cart-item-img{width:58px;height:58px;object-fit:cover;border-radius:8px;flex-shrink:0;background:var(--bg)}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-title{font-size:.87rem;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-item-code{font-size:.68rem;color:var(--accent2);font-weight:700;letter-spacing:1px;margin-top:2px}
+.cart-item-qty{display:flex;align-items:center;gap:8px;margin-top:6px}
+.qty-btn{
+  width:24px;height:24px;border-radius:6px;
+  background:rgba(255,255,255,.08);border:1px solid var(--border);
+  color:var(--text);font-size:.9rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.qty-btn:hover{border-color:var(--accent);color:var(--accent)}
+.qty-num{font-size:.85rem;font-weight:600;min-width:16px;text-align:center}
+.cart-item-remove{
+  background:none;border:none;color:var(--muted);
+  font-size:1.1rem;cursor:pointer;padding:4px;transition:color .2s;flex-shrink:0;
+}
+.cart-item-remove:hover{color:#ff4d6d}
+.cart-footer{padding:16px 20px;border-top:1px solid var(--border)}
+.cart-summary{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:.9rem;color:var(--muted)}
+.cart-summary span:last-child{color:var(--text);font-weight:700;font-size:1rem}
+.cart-order-btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--accent),#0095aa);
+  border:none;border-radius:12px;color:#000;
+  font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;
+  cursor:pointer;transition:opacity .2s;
+}
+.cart-order-btn:hover{opacity:.88}
+.cart-note{font-size:.75rem;color:var(--muted);text-align:center;margin-top:10px;line-height:1.4}
+
+/* ── AUTH MODAL ── */
+.auth-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(10px);
+  z-index:500;align-items:center;justify-content:center;padding:20px;
+}
+.auth-overlay.open{display:flex}
+.auth-modal{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:18px;width:100%;max-width:400px;padding:32px 28px;
+  position:relative;animation:popIn .28s ease;
+}
+.auth-close{
+  position:absolute;top:14px;right:16px;
+  background:rgba(255,255,255,.08);border:none;border-radius:50%;
+  width:34px;height:34px;color:var(--text);font-size:1.2rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.auth-close:hover{background:rgba(255,255,255,.18)}
+.auth-logo{
+  text-align:center;font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;
+}
+.auth-subtitle{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:22px;line-height:1.5}
+.auth-tabs{
+  display:flex;border-radius:10px;overflow:hidden;
+  border:1px solid var(--border);margin-bottom:22px;
+}
+.auth-tab{
+  flex:1;padding:10px;text-align:center;
+  background:transparent;border:none;
+  color:var(--muted);font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:600;
+  cursor:pointer;transition:all .2s;
+}
+.auth-tab.active{background:var(--accent);color:#000}
+.google-btn{
+  width:100%;padding:12px;
+  background:rgba(255,255,255,.06);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;
+}
+.google-btn:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.28)}
+.auth-divider{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-divider span{color:var(--muted);font-size:.78rem}
+.auth-field{
+  width:100%;padding:12px 14px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:.95rem;
+  outline:none;transition:border-color .2s;margin-bottom:10px;display:block;
+}
+.auth-field:focus{border-color:var(--accent)}
+.auth-field::placeholder{color:var(--muted)}
+.auth-submit{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,var(--accent),#0095aa);
+  border:none;border-radius:10px;color:#000;
+  font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;
+  cursor:pointer;transition:opacity .2s;margin-top:4px;
+}
+.auth-submit:hover{opacity:.88}
+.auth-msg{font-size:.82rem;text-align:center;margin-top:10px;min-height:18px}
+.auth-msg.err{color:#ff6b6b}
+.auth-msg.ok{color:#69ff85}
+
+/* ── USER AVATAR MENU ── */
+.user-menu-wrap{position:relative}
+.user-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;cursor:pointer;
+  font-family:'Outfit',sans-serif;font-weight:700;font-size:.88rem;color:#000;
+  display:flex;align-items:center;justify-content:center;transition:opacity .2s;
+}
+.user-avatar:hover{opacity:.8}
+.user-dropdown{
+  display:none;position:absolute;top:44px;right:0;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;min-width:170px;padding:8px;
+  z-index:600;animation:popIn .18s ease;box-shadow:0 8px 32px rgba(0,0,0,.5);
+}
+.user-dropdown.open{display:block}
+.user-dropdown-name{padding:8px 12px 10px;font-size:.8rem;color:var(--muted);border-bottom:1px solid var(--border);margin-bottom:6px}
+.dropdown-item{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 12px;border-radius:8px;
+  color:var(--text);font-size:.88rem;font-weight:500;
+  cursor:pointer;transition:background .2s;
+  background:none;border:none;width:100%;font-family:'Outfit',sans-serif;text-align:left;
+}
+.dropdown-item:hover{background:rgba(255,255,255,.06)}
+.dropdown-item.danger{color:#ff6b6b}
+/* ── LANG TOGGLE ── */
+.lang-btn{
+  font-weight:700;font-size:.82rem;letter-spacing:1px;
+  min-width:44px;justify-content:center;padding:8px 10px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="logo-bigp">P</span>recision<span class="logo-bigp">P</span>rint<span class="logo-sub">Perfected by Tech. Defined by Precision.<span class="logo-momo">by MOMO</span></span></div>
+  <div class="header-right">
+    <!-- Nyelv váltó -->
+    <button class="header-btn lang-btn" id="langBtn" onclick="switchLang()">EN</button>
+    <!-- Kedvencek -->
+    <button class="header-btn" onclick="filterTo('favorites')" id="favHeaderBtn">
+      ❤️ <span class="h-badge hidden" id="favBadge">0</span>
+    </button>
+    <!-- Kosár -->
+    <button class="header-btn" id="cartHeaderBtn" onclick="openCart()">
+      🛒 <span class="h-badge hidden" id="cartBadge">0</span>
+    </button>
+    <!-- Login / User -->
+    <div id="loginBtnWrap">
+      <button class="header-btn" onclick="openAuth()">👤 Login</button>
+    </div>
+    <div id="userMenuWrap" class="user-menu-wrap" style="display:none">
+      <button class="user-avatar" id="userAvatar" onclick="toggleUserMenu()">?</button>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-name" id="userDropdownName"></div>
+        <button class="dropdown-item" id="dropFavItem" onclick="filterTo('favorites');toggleUserMenu()">❤️ Kedvenceim</button>
+        <button class="dropdown-item danger" id="dropLogoutItem" onclick="logout()">🚪 Kijelentkezés</button>
+      </div>
+    </div>
+    <a class="ig-link" href="https://instagram.com/rotzerpeter" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      @rotzerpeter
+    </a>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <input class="search-box" id="searchInput" type="text" placeholder="🔍 Search products..."/>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-cat="all">All</button>
+  <button class="tab" data-cat="fidget_toys">Fidget Toys</button>
+  <button class="tab" data-cat="organizers">Organizers</button>
+  <button class="tab" data-cat="decor">Decor</button>
+  <button class="tab" data-cat="keychains">Keychains</button>
+  <button class="tab" data-cat="planters">Planters</button>
+  <button class="tab" data-cat="phone_stands">Phone Stands</button>
+  <button class="tab" data-cat="vases">Vases</button>
+  <button class="tab" data-cat="makerlab_apps">MakerLab Apps</button>
+  <button class="tab" data-cat="favorites">❤️ Kedvencek</button>
+</div>
+
+<!-- Netflix-style landing (visible on "all" + no search) -->
+<div id="netflixWrap" class="netflix-wrap"></div>
+
+<!-- Grid view (visible when filtered/searching) -->
+<div class="grid-wrap" id="gridWrap" style="display:none">
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyMsg" style="display:none">
+    <div class="empty-icon">🔍</div>
+    <p>No products found.</p>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="overlay" id="overlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <button class="modal-fav-btn" id="modalFavBtn" onclick="toggleFavModal()">🤍</button>
+    <img class="modal-img" id="modalImg" src="" alt=""/>
+    <div class="modal-body">
+      <div class="modal-code" id="modalCode"></div>
+      <div class="modal-cat" id="modalCat"></div>
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-price-note" id="modalPriceNote">💬 Ask for pricing on Instagram – custom requests welcome!</div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-actions">
+        <button class="btn-primary" id="modalCartBtn" onclick="addToCartFromModal()">🛒 Kosárba</button>
+        <a class="btn-secondary" id="modalMakerLink" href="#" target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          További részletek
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Modal -->
+<div class="order-overlay" id="orderOverlay" onclick="closeOrderModal()">
+  <div class="order-modal" onclick="event.stopPropagation()">
+    <button class="order-close" onclick="closeOrderModal()">✕</button>
+    <div class="order-title" id="orderTitle">How to Order?</div>
+    <div class="order-sub" id="orderSub">Ordering is easy – reach us on Instagram!</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text" id="step1"></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text" id="step2"></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text" id="step3"></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text" id="step4"></div></div>
+    </div>
+    <a class="ig-btn" id="orderIgBtn" href="https://instagram.com/rotzerpeter" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      <span id="orderIgBtnText">Order at @rotzerpeter</span>
+    </a>
+    <div class="qr-wrap">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=https://instagram.com/rotzerpeter" alt="QR code"/>
+      <div class="qr-label" id="qrLabel">Or scan the QR code</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CART SIDEBAR ═══ -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()">
+  <div class="cart-panel" onclick="event.stopPropagation()">
+    <div class="cart-header">
+      <div class="cart-title" id="cartTitle">🛒 Kosár</div>
+      <button class="cart-close" onclick="closeCart()">✕</button>
+    </div>
+    <div class="cart-items" id="cartItemsList"></div>
+    <div class="cart-footer" id="cartFooter"></div>
+  </div>
+</div>
+
+<!-- ═══ AUTH MODAL ═══ -->
+<div class="auth-overlay" id="authOverlay" onclick="closeAuth()">
+  <div class="auth-modal" onclick="event.stopPropagation()">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-logo">PrecisionPrint</div>
+    <div class="auth-subtitle" id="authSubtitle">Jelentkezz be a kedvenceidhez és a kosárhoz</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Bejelentkezés</button>
+      <button class="auth-tab" id="registerTab" onclick="switchAuthTab('register')">Regisztráció</button>
+    </div>
+    <button class="google-btn" onclick="googleLogin()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <span id="googleBtnText">Folytatás Google-lal</span>
+    </button>
+    <div class="auth-divider"><span id="authDivider">vagy</span></div>
+    <input class="auth-field" id="authEmail" type="email" placeholder="Email cím"/>
+    <input class="auth-field" id="authPass" type="password" placeholder="Jelszó"/>
+    <input class="auth-field" id="authName" type="text" placeholder="Teljes név" style="display:none"/>
+    <button class="auth-submit" id="authSubmitBtn" onclick="submitAuth()">Bejelentkezés</button>
+    <div class="auth-msg" id="authMsg"></div>
+  </div>
+</div>
+
+<footer>
+  <h2 style="font-family:'Bebas Neue',cursive;font-size:2.4rem;letter-spacing:3px;color:var(--text);margin-bottom:12px">PrecisionPrint</h2>
+  <p id="footerDesc" style="color:var(--muted);font-size:.95rem;margin-bottom:28px;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.6">Discover even more unique 3D printed products on MakerWorld!</p>
+  <a href="https://makerworld.com/en" target="_blank" rel="noopener" id="footerMWBtn" style="
+    display:inline-flex;align-items:center;gap:10px;
+    padding:18px 40px;background:transparent;
+    border:2px solid var(--accent);color:var(--accent);
+    font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;
+    border-radius:50px;text-decoration:none;
+    box-shadow:0 0 24px rgba(0,229,255,.2);
+    transition:all .2s;margin-bottom:28px;
+  " onmouseover="this.style.background='rgba(0,229,255,.1)'" onmouseout="this.style.background='transparent'">
+    🔗 Visit MakerWorld – More Products
+  </a>
+  <p id="footerRights" style="color:var(--muted);font-size:.8rem">© 2025 PrecisionPrint · All rights reserved</p>
+</footer>
+
+<script>
+/* ─── LANGUAGE ─── */
+let lang = localStorage.getItem('pp_lang') || 'hu';
+
+const STRINGS = {
+  hu: {
+    searchPlaceholder:'🔍 Termékek keresése...',
+    tabAll:'Összes', tabFavorites:'❤️ Kedvencek',
+    favHeaderTitle:'Kedvencek', cartHeaderTitle:'Kosár', loginHeader:'👤 Login',
+    products:'termék', viewAll:'Mind →',
+    detailsOrder:'Részletek / Rendelés',
+    priceNote:'💬 Kérdezz az árakról Instagramon – egyedi igények is lehetségesek!',
+    addToCart:'🛒 Kosárba', moreDetails:'További részletek',
+    cartTitle:'🛒 Kosár', cartEmpty:'A kosár üres',
+    cartTotalLabel:'Összesen:', cartOrderBtn:'📩 Megrendelés Instagramon',
+    cartNote:'Az árakról egyeztess velünk Instagramon – egyedi igények is lehetségesek!',
+    orderTitle:'Hogyan rendelj?', orderSub:'Rendelés egyszerű – írj nekünk Instagramon!',
+    step1:'<strong>Kövesd</strong> a @rotzerpeter oldalt Instagramon',
+    step2:'<strong>Küldj DM-et</strong> a termék nevével és méretével',
+    step3:'<strong>Egyeztetünk</strong> árban, színben és szállításban',
+    step4:'<strong>Kinyomtatjuk</strong> és postázzuk!',
+    orderIgBtn:'Rendelés @rotzerpetrnél', qrLabel:'Vagy szkenneld be a QR kódot',
+    authSubtitle:'Jelentkezz be a kedvenceidhez és a kosárhoz',
+    loginTab:'Bejelentkezés', registerTab:'Regisztráció',
+    googleBtn:'Folytatás Google-lal', authDivider:'vagy',
+    emailPlaceholder:'Email cím', passPlaceholder:'Jelszó', namePlaceholder:'Teljes név',
+    submitLogin:'Bejelentkezés', submitRegister:'Regisztráció',
+    errFill:'Töltsd ki az összes mezőt!', errShortPass:'A jelszó legalább 6 karakter legyen!',
+    errExists:'Ez az email már regisztrált!', errWrong:'Hibás email vagy jelszó!',
+    okRegister:'Sikeres regisztráció! 🎉', okLogin:'Üdv vissza! 👋', okGoogle:'Google bejelentkezés sikeres! 🎉',
+    dropFav:'❤️ Kedvenceim', dropLogout:'🚪 Kijelentkezés',
+    favEmpty:'Még nincsenek kedvenceid.<br>Kattints a 🤍 szívre bármelyik terméken!',
+    noProducts:'Nem található termék.',
+    footerDesc:'Fedezz fel még több egyedi 3D nyomtatott terméket a MakerWorld-ön!',
+    footerMW:'🔗 MakerWorld – Több termék', footerRights:'© 2025 PrecisionPrint · Minden jog fenntartva',
+    categories:{ fidget_toys:'Fidget Játékok', organizers:'Rendszerezők', decor:'Dekor',
+      keychains:'Kulcstartók', planters:'Virágcserepek', phone_stands:'Telefontartók',
+      vases:'Vázák', makerlab_apps:'MakerLab Appok' }
+  },
+  en: {
+    searchPlaceholder:'🔍 Search products...',
+    tabAll:'All', tabFavorites:'❤️ Favorites',
+    favHeaderTitle:'Favorites', cartHeaderTitle:'Cart', loginHeader:'👤 Login',
+    products:'products', viewAll:'View all →',
+    detailsOrder:'Details / Order',
+    priceNote:'💬 Ask for pricing on Instagram – custom requests welcome!',
+    addToCart:'🛒 Add to Cart', moreDetails:'More Details',
+    cartTitle:'🛒 Cart', cartEmpty:'Your cart is empty',
+    cartTotalLabel:'Total:', cartOrderBtn:'📩 Order on Instagram',
+    cartNote:'Ask us for pricing on Instagram – custom requests welcome!',
+    orderTitle:'How to Order?', orderSub:'Ordering is easy – reach us on Instagram!',
+    step1:'<strong>Follow</strong> @rotzerpeter on Instagram',
+    step2:'<strong>Send a DM</strong> with the product name and size',
+    step3:'<strong>We\'ll agree</strong> on price, colour and delivery',
+    step4:'<strong>We print it</strong> and ship it to you!',
+    orderIgBtn:'Order at @rotzerpeter', qrLabel:'Or scan the QR code',
+    authSubtitle:'Sign in to access your favorites and cart',
+    loginTab:'Sign In', registerTab:'Register',
+    googleBtn:'Continue with Google', authDivider:'or',
+    emailPlaceholder:'Email address', passPlaceholder:'Password', namePlaceholder:'Full name',
+    submitLogin:'Sign In', submitRegister:'Register',
+    errFill:'Please fill in all fields!', errShortPass:'Password must be at least 6 characters!',
+    errExists:'This email is already registered!', errWrong:'Incorrect email or password!',
+    okRegister:'Registration successful! 🎉', okLogin:'Welcome back! 👋', okGoogle:'Google sign-in successful! 🎉',
+    dropFav:'❤️ My Favorites', dropLogout:'🚪 Sign Out',
+    favEmpty:'No favorites yet.<br>Click the 🤍 heart on any product!',
+    noProducts:'No products found.',
+    footerDesc:'Discover even more unique 3D printed products on MakerWorld!',
+    footerMW:'🔗 Visit MakerWorld – More Products', footerRights:'© 2025 PrecisionPrint · All rights reserved',
+    categories:{ fidget_toys:'Fidget Toys', organizers:'Organizers', decor:'Decor',
+      keychains:'Keychains', planters:'Planters', phone_stands:'Phone Stands',
+      vases:'Vases', makerlab_apps:'MakerLab Apps' }
+  }
+};
+
+function t(key){ return (STRINGS[lang] && STRINGS[lang][key]) || STRINGS.en[key] || key; }
+
+function switchLang(){
+  lang = lang === 'hu' ? 'en' : 'hu';
+  localStorage.setItem('pp_lang', lang);
+  applyLang();
+}
+
+function applyLang(){
+  const s = STRINGS[lang];
+  // update CATEGORY_LABELS
+  Object.assign(CATEGORY_LABELS, s.categories);
+  // lang button
+  document.getElementById('langBtn').textContent = lang === 'hu' ? 'EN' : 'HU';
+  // header buttons
+  document.getElementById('favHeaderBtn').innerHTML = `❤️ <span class="h-badge ${favorites.length?'':'hidden'}" id="favBadge">${favorites.length}</span>`;
+  document.querySelector('#cartHeaderBtn .h-badge') && null; // handled separately
+  document.getElementById('loginBtnWrap').querySelector('button').textContent = s.loginHeader;
+  document.getElementById('dropFavItem').textContent = s.dropFav;
+  document.getElementById('dropLogoutItem').textContent = s.dropLogout;
+  // search
+  document.getElementById('searchInput').placeholder = s.searchPlaceholder;
+  // tabs
+  document.querySelector('.tab[data-cat="all"]').textContent = s.tabAll;
+  document.querySelector('.tab[data-cat="favorites"]').textContent = s.tabFavorites;
+  Object.keys(s.categories).forEach(cat => {
+    const tab = document.querySelector(`.tab[data-cat="${cat}"]`);
+    if(tab) tab.textContent = s.categories[cat];
+  });
+  // modal
+  document.getElementById('modalPriceNote').textContent = s.priceNote;
+  document.getElementById('modalCartBtn').textContent = s.addToCart;
+  const makerLink = document.getElementById('modalMakerLink');
+  makerLink.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> ${s.moreDetails}`;
+  // order modal
+  document.getElementById('orderTitle').textContent = s.orderTitle;
+  document.getElementById('orderSub').textContent = s.orderSub;
+  document.getElementById('step1').innerHTML = s.step1;
+  document.getElementById('step2').innerHTML = s.step2;
+  document.getElementById('step3').innerHTML = s.step3;
+  document.getElementById('step4').innerHTML = s.step4;
+  document.getElementById('orderIgBtnText').textContent = s.orderIgBtn;
+  document.getElementById('qrLabel').textContent = s.qrLabel;
+  // cart
+  document.getElementById('cartTitle').textContent = s.cartTitle;
+  // auth
+  document.getElementById('authSubtitle').textContent = s.authSubtitle;
+  document.getElementById('loginTab').textContent = s.loginTab;
+  document.getElementById('registerTab').textContent = s.registerTab;
+  document.getElementById('googleBtnText').textContent = s.googleBtn;
+  document.getElementById('authDivider').textContent = s.authDivider;
+  document.getElementById('authEmail').placeholder = s.emailPlaceholder;
+  document.getElementById('authPass').placeholder = s.passPlaceholder;
+  document.getElementById('authName').placeholder = s.namePlaceholder;
+  document.getElementById('authSubmitBtn').textContent = authMode === 'register' ? s.submitRegister : s.submitLogin;
+  // footer
+  document.getElementById('footerDesc').textContent = s.footerDesc;
+  document.getElementById('footerMWBtn').textContent = s.footerMW;
+  document.getElementById('footerRights').textContent = s.footerRights;
+  // re-render dynamic content
+  renderAll();
+  if(document.getElementById('cartOverlay').classList.contains('open')) renderCartPanel();
+}
+
+/* ─── FAVORITES ─── */
+let favorites = JSON.parse(localStorage.getItem('pp_favorites') || '[]');
+
+function isFav(id){ return favorites.includes(id); }
+
+function toggleFav(id, e){
+  if(e){ e.stopPropagation(); }
+  if(favorites.includes(id)){
+    favorites = favorites.filter(x => x !== id);
+  } else {
+    favorites.push(id);
+  }
+  localStorage.setItem('pp_favorites', JSON.stringify(favorites));
+  updateFavBadge();
+  // update all fav buttons on screen
+  document.querySelectorAll(`.fav-btn[data-id="${id}"]`).forEach(btn => {
+    btn.classList.toggle('active', favorites.includes(id));
+    btn.title = favorites.includes(id) ? 'Eltávolítás a kedvencekből' : 'Hozzáadás a kedvencekhez';
+  });
+  if(activeCat === 'favorites') renderAll();
+}
+
+function updateFavBadge(){
+  const badge = document.getElementById('favBadge');
+  badge.textContent = favorites.length;
+  badge.classList.toggle('hidden', favorites.length === 0);
+}
+
+/* ─── CART ─── */
+let cart = JSON.parse(localStorage.getItem('pp_cart') || '[]');
+// cart item: { id, qty }
+
+function getCartItem(id){ return cart.find(x => x.id === id); }
+function getCartTotal(){ return cart.reduce((s,x) => s + x.qty, 0); }
+
+function addToCart(id, e){
+  if(e) e.stopPropagation();
+  const existing = getCartItem(id);
+  if(existing){ existing.qty++; } else { cart.push({id, qty:1}); }
+  saveCart();
+  updateCartBadge();
+  // flash the badge
+  const badge = document.getElementById('cartBadge');
+  badge.style.transform = 'scale(1.5)';
+  setTimeout(() => badge.style.transform = '', 300);
+}
+
+function removeFromCart(id){
+  cart = cart.filter(x => x.id !== id);
+  saveCart();
+  updateCartBadge();
+  renderCartPanel();
+}
+
+function changeQty(id, delta){
+  const item = getCartItem(id);
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty <= 0){ removeFromCart(id); return; }
+  saveCart();
+  renderCartPanel();
+}
+
+function saveCart(){ localStorage.setItem('pp_cart', JSON.stringify(cart)); }
+
+function updateCartBadge(){
+  const total = getCartTotal();
+  const badge = document.getElementById('cartBadge');
+  badge.textContent = total;
+  badge.classList.toggle('hidden', total === 0);
+}
+
+function openCart(){
+  document.getElementById('cartOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderCartPanel();
+}
+
+function closeCart(){
+  document.getElementById('cartOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderCartPanel(){
+  const listEl = document.getElementById('cartItemsList');
+  const footerEl = document.getElementById('cartFooter');
+  if(cart.length === 0){
+    listEl.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><div>${t('cartEmpty')}</div></div>`;
+    footerEl.innerHTML = '';
+    return;
+  }
+  listEl.innerHTML = cart.map(item => {
+    const p = PRODUCTS.find(x => x.id === item.id);
+    if(!p) return '';
+    return `
+      <div class="cart-item">
+        <img class="cart-item-img" src="${p.img}" alt="${p.title}" onerror="this.style.background='#1a1a24'"/>
+        <div class="cart-item-info">
+          <div class="cart-item-title">${p.title}</div>
+          <div class="cart-item-code">${p.code}</div>
+          <div class="cart-item-qty">
+            <button class="qty-btn" onclick="changeQty(${p.id},-1)">−</button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty(${p.id},1)">+</button>
+          </div>
+        </div>
+        <button class="cart-item-remove" onclick="removeFromCart(${p.id})" title="Törlés">🗑</button>
+      </div>`;
+  }).join('');
+  const total = getCartTotal();
+  footerEl.innerHTML = `
+    <div class="cart-summary"><span>${t('cartTotalLabel')}</span><span>${total} ${t('products')}</span></div>
+    <button class="cart-order-btn" onclick="closeCart();openOrderModal()">${t('cartOrderBtn')}</button>
+    <div class="cart-note">${t('cartNote')}</div>`;
+}
+
+/* current modal product id */
+let currentModalId = null;
+
+function toggleFavModal(){
+  if(!currentModalId) return;
+  toggleFav(currentModalId);
+  const favBtn = document.getElementById('modalFavBtn');
+  favBtn.textContent = isFav(currentModalId) ? '❤️' : '🤍';
+  favBtn.classList.toggle('active', isFav(currentModalId));
+}
+
+function addToCartFromModal(){
+  if(currentModalId) addToCart(currentModalId);
+  const btn = document.getElementById('modalCartBtn');
+  btn.textContent = '✓ Hozzáadva!';
+  btn.style.borderColor = '#69ff85';
+  btn.style.color = '#69ff85';
+  setTimeout(() => {
+    btn.textContent = '🛒 Kosárba';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+  }, 1500);
+}
+
+/* ─── AUTH ─── */
+let currentUser = null;
+let authMode = 'login';
+
+function openAuth(){
+  document.getElementById('authOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('authMsg').textContent = '';
+}
+
+function closeAuth(){
+  document.getElementById('authOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function switchAuthTab(mode){
+  authMode = mode;
+  document.getElementById('loginTab').classList.toggle('active', mode === 'login');
+  document.getElementById('registerTab').classList.toggle('active', mode === 'register');
+  document.getElementById('authName').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Bejelentkezés' : 'Regisztráció';
+  document.getElementById('authMsg').textContent = '';
+}
+
+async function submitAuth(){
+  const email = document.getElementById('authEmail').value.trim();
+  const pass  = document.getElementById('authPass').value;
+  const name  = document.getElementById('authName').value.trim();
+  const msg   = document.getElementById('authMsg');
+
+  const btn = document.getElementById('authSubmitBtn');
+  if(!email || !pass){ msg.className='auth-msg err'; msg.textContent=t('errFill'); return; }
+  if(pass.length < 6){ msg.className='auth-msg err'; msg.textContent=t('errShortPass'); return; }
+
+  btn.disabled = true; btn.style.opacity = '.6';
+  try {
+    if(authMode === 'register'){
+      const cred = await firebase.auth().createUserWithEmailAndPassword(email, pass);
+      if(name) await cred.user.updateProfile({ displayName: name });
+      msg.className='auth-msg ok'; msg.textContent=t('okRegister');
+    } else {
+      await firebase.auth().signInWithEmailAndPassword(email, pass);
+      msg.className='auth-msg ok'; msg.textContent=t('okLogin');
+    }
+    setTimeout(closeAuth, 900);
+  } catch(e) {
+    msg.className='auth-msg err';
+    if(e.code==='auth/email-already-in-use') msg.textContent=t('errExists');
+    else if(['auth/user-not-found','auth/wrong-password','auth/invalid-credential'].includes(e.code)) msg.textContent=t('errWrong');
+    else msg.textContent = e.message;
+  } finally {
+    btn.disabled = false; btn.style.opacity = '';
+  }
+}
+
+async function googleLogin(){
+  const msg = document.getElementById('authMsg');
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await firebase.auth().signInWithPopup(provider);
+    msg.className='auth-msg ok'; msg.textContent=t('okGoogle');
+    setTimeout(closeAuth, 900);
+  } catch(e) {
+    msg.className='auth-msg err';
+    msg.textContent = e.code === 'auth/popup-closed-by-user' ? (lang==='hu'?'Bejelentkezés megszakítva.':'Sign-in cancelled.') : e.message;
+  }
+}
+
+function loginUser(fbUser){
+  currentUser = {
+    email: fbUser.email,
+    name: fbUser.displayName || fbUser.email.split('@')[0]
+  };
+  updateUserUI();
+}
+
+function logout(){
+  firebase.auth().signOut();
+  document.getElementById('userDropdown').classList.remove('open');
+  if(activeCat === 'favorites'){ activeCat = 'all'; document.querySelector('.tab[data-cat="all"]').classList.add('active'); renderAll(); }
+}
+
+function toggleUserMenu(){
+  document.getElementById('userDropdown').classList.toggle('open');
+}
+
+function updateUserUI(){
+  const loginWrap = document.getElementById('loginBtnWrap');
+  const userWrap  = document.getElementById('userMenuWrap');
+  if(currentUser){
+    loginWrap.style.display = 'none';
+    userWrap.style.display  = 'block';
+    const initials = (currentUser.name || currentUser.email || '?').slice(0,2).toUpperCase();
+    document.getElementById('userAvatar').textContent = initials;
+    document.getElementById('userDropdownName').textContent = currentUser.name || currentUser.email;
+  } else {
+    loginWrap.style.display = 'block';
+    userWrap.style.display  = 'none';
+  }
+}
+
+// close user dropdown on outside click
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('userMenuWrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('userDropdown').classList.remove('open');
+});
+
+/* ─── DATA ─── */
+const CATEGORY_LABELS = {
+  fidget_toys:  'Fidget Toys',
+  organizers:   'Organizers',
+  decor:        'Decor',
+  keychains:    'Keychains',
+  planters:     'Planters',
+  phone_stands: 'Phone Stands',
+  vases:           'Vases',
+  makerlab_apps:   'MakerLab Apps'
+};
+const CATEGORY_PREFIX = {
+  fidget_toys:'F', organizers:'O', decor:'D',
+  keychains:'K', planters:'Pl', phone_stands:'P', vases:'V', makerlab_apps:'M'
+};
+const CATEGORY_DESCS = {
+  fidget_toys:    'Unique 3D printed fidget toy – perfect for stress relief and improving focus. Printed from premium PLA filament, durable and fun to use.',
+  organizers:     'Practical 3D printed organizer to keep your desk, workspace or home tidy. Can be made to custom specifications on request.',
+  decor:          'Beautiful 3D printed decorative piece to brighten up your home. Modern design, premium quality – make your space truly unique!',
+  keychains:      'Cool and unique 3D printed keychain. Perfect as a gift or for personal use. Available in various colours and sizes.',
+  planters:       'Stylish 3D printed planter that makes any plant look even better. Waterproof coating available on request.',
+  phone_stands:   'Practical 3D printed phone stand that holds your device securely while working, watching videos or on your desk.',
+  vases:          'Elegant 3D printed vase that decorates your home in a modern or classic style. Perfect for fresh or artificial flowers alike.',
+  makerlab_apps:  'AI-powered MakerLab tools to generate, customise and print unique 3D models – directly from your browser on MakerWorld.'
+};
+
+const PRODUCTS = [
+  // FIDGET TOYS — F1…F15
+  {id:1,title:"Fidget Blanket",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/US2e230a38334cc9/design/2024-12-18_9d3f332e4405b.jpeg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/892608-fidget-blanket",downloads:"18.5k",likes:"2.7k"},
+  {id:2,title:"COOL FIDGET",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/USc85e35849e64f4/design/2025-07-03_9f5adabde22b8.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1571798-cool-fidget",downloads:"13.5k",likes:"2.5k"},
+  {id:3,title:"F1-FIDGET",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/US2950f4e077f53b/design/2025-06-30_1c7ba1a41d9b7.gif?x-oss-process=image/resize,w_800/format,jpeg",url:"https://makerworld.com/en/models/1563684-f1-fidget",downloads:"10k",likes:"3.1k"},
+  {id:4,title:"Fidget Slider",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/USc8ed9410b356d6/design/2024-09-14_ac14f357a3abe.jfif?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/641726-fidget-slider",downloads:"6.9k",likes:"3.6k"},
+  {id:5,title:"Fiddle Fidget",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/US2fad642fde54cb/design/2024-10-19_cb12fddf3093e.gif?x-oss-process=image/resize,w_800/format,jpeg",url:"https://makerworld.com/en/models/714037-fiddle-fidget",downloads:"11.2k",likes:"2.3k"},
+  {id:6,title:"Fidget Hexagon Twist",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/US2dfd77924d2c78/design/2024-07-02_525aa8812178d.gif?x-oss-process=image/resize,w_800/format,jpeg",url:"https://makerworld.com/en/models/521944-fidget-hexagon-twist",downloads:"88.2k",likes:"10.9k"},
+  {id:7,title:"Limau Link – Chained Citrus Fidget",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/USf567a6e91b5256/design/5a1d920b63703c69.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2383911-limau-link-chained-citrus-fidget-drop-tested",downloads:"6.1k",likes:"3.9k"},
+  {id:8,title:"Finger Slinger – Print In Place",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/US6dd69d2b13cb87/design/2023-11-07_vdpfzr49logx.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/58825-finger-slinger-print-in-place-spinning-fidget",downloads:"5.8k",likes:"1.9k"},
+  {id:9,title:"Transforming Fidget Ball Mini",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/US5e51b8f8ab3f7e/design/2024-06-02_2ac2dffeed26e.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/482093-transforming-fidget-ball-mini",downloads:"33k",likes:"6.9k"},
+  {id:10,title:"My 10 Star Fidget Design",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/US6a3e0154a93134/design/2025-09-01_3af3607d28c8b.gif?x-oss-process=image/resize,w_800/format,jpeg",url:"https://makerworld.com/en/models/1755208-my-10-star-fidget-design",downloads:"70.9k",likes:"9.8k"},
+  {id:11,title:"Star Fidget with Handle",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/US70bcaa0bc318ed/design/2025-09-11_39055c2b180b4.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1783379-star-fidget-with-handle",downloads:"11.1k",likes:"1.2k"},
+  {id:12,title:"Small Spiral Fidget",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/US29304b418896d0/design/2025-02-20_4fab9d161f7af.webp?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1130569-small-spiral-fidget",downloads:"50.7k",likes:"4.4k"},
+  {id:13,title:"IRIS FIDGET – Print In Place",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/US723df4a7f2a31a/design/2025-06-01_fc26bbc00012d.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1472499-iris-fidget-print-in-place-3d-fidget",downloads:"17.2k",likes:"3.4k"},
+  {id:14,title:"Infinite Pop-Up Fidget Toy",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/USa8fffa54cb9fe8/design/2025-02-18_79010b95c30d6.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1122798-infinite-pop-up-fidget-toy",downloads:"13.4k",likes:"3.4k"},
+  {id:15,title:"Expanding Star Fidget",category:"fidget_toys",img:"https://makerworld.bblmw.com/makerworld/model/USd017dd07580864/design/2025-11-04_7eeda8f8a2fe6.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1749473-expanding-star-fidget",downloads:"8.9k",likes:"1.1k"},
+  // ORGANIZERS — O1…O15
+  {id:16,title:"Desk Organizer",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/US8dfe15f21acb17/design/2024-06-03_d7cfbcd76de4d.webp?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/249384-desk-organizer",downloads:"10k",likes:"3.7k"},
+  {id:17,title:"Gothic Pen Holder",category:"organizers",img:"https://media.printables.com/media/prints/aedf1fb7-4cc1-4b8e-8014-6406f539647a/images/10889273_537ee70b-16e9-4afc-98e6-b5c17c86a5dd_3ff5e0c2-5af2-4cf8-a25a-d9d57ce52cbe/snimek-obrazovky-2025-10-14-072012.png",url:"https://www.printables.com/model/1402586",downloads:"818",likes:"291"},
+  {id:18,title:"Desk Organiser",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/US8f7c113d72a2ba/design/2025-01-02_f5f2e54c9772c.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/940481-desk-organiser",downloads:"3.1k",likes:"1.1k"},
+  {id:19,title:"Lightweight Infinite Skadis 240×240mm",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/US7a9070ae56d263/design/2025-08-28_95a6d3c4097188.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1741798-lightweight-infinite-skadis-240x240mm",downloads:"8.5k",likes:"3.3k"},
+  {id:20,title:"Adjustable Monitor Shelf MK2",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/UScf94227e7ca5f1/design/2025-07-06_edfadc61caa268.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1579723-adjustable-monitor-shelf-mk2-fits-any-display",downloads:"18.8k",likes:"6.3k"},
+  {id:21,title:"Modular Desk Organizer",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/UScc712fec0477f0/design/2025-09-17_f59fcb7ac0bef8.gif?x-oss-process=image/resize,w_800/format,jpeg",url:"https://makerworld.com/en/models/1802763-modular-desk-organizer",downloads:"10.2k",likes:"7.3k"},
+  {id:22,title:"Office Desk Organizer + Phone Holder",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/USddb67d2f12b946/design/2025-08-23_13f90ceddc365.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1726061-office-desk-organizer-with-integrated-phone-holder",downloads:"6.7k",likes:"3k"},
+  {id:23,title:"Full Extension Stackable Drawer",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/USfbed571d9a7c42/design/2025-02-26_718fb1bd697448.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1152385-full-extension-stackable-drawer-monitor-riser",downloads:"8.2k",likes:"3.3k"},
+  {id:24,title:"Doctor Coat Pen Holder",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/US9f5dd2cc3a2cc3/design/a07d447ec348f9a5.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2199114-doctor-coat-pen-holder-medical-desk-organizer",downloads:"9k",likes:"4.8k"},
+  {id:25,title:"Minimalist Rounded Desk Organizer",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/US254267772b722e/design/2026-01-20_6d9814938cf0f.jpeg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2274291-minimalist-rounded-desk-organizer",downloads:"2k",likes:"2.1k"},
+  {id:26,title:"Modular Desk Organiser",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/US8780ba650b9db5/design/2025-05-08_db0f6cbf2890d.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1397248-modular-desk-organiser",downloads:"10.7k",likes:"7k"},
+  {id:27,title:"Kumiko Desk Organizer",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/US50e9bef1875086/design/2025-04-07_1392efe393c958.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1288105-kumiko-desk-organizer",downloads:"6.6k",likes:"2.8k"},
+  {id:28,title:"Holder for Post-It Notes",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/US87365016a84cdd/design/2025-04-30_c4d66a79b62278.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/931302-holder-for-post-it-notes-stencils-included",downloads:"9.5k",likes:"3.5k"},
+  {id:29,title:"Parametric Bath & Desk Organizer",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/US34432be814e86/design/1590e9b1bf26bc11.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2297789-parametric-bath-and-desk-organizer",downloads:"2.3k",likes:"1.7k"},
+  {id:30,title:"Workshop Desk Organizer – Stackable",category:"organizers",img:"https://makerworld.bblmw.com/makerworld/model/US2ec00b7aaade03/design/2024-12-27_beb445e4b06be.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/919813-workshop-desk-organizer-stackable-3-sizes",downloads:"22.1k",likes:"13.8k"},
+  // DECOR — D1…D15
+  {id:31,title:"Stylish HOME Decor",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/USea1540c0231293/design/2025-07-07_bcbc45c901c53.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1583372-stylish-home-decor",downloads:"3.1k",likes:"1.5k"},
+  {id:32,title:"Vase with Roses & Stems",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/USe83a7a59b0ea13/design/2025-04-04_fbf35206d646.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1283807-vase-with-roses-and-stems-flowers-bouquet",downloads:"11.2k",likes:"2.7k"},
+  {id:33,title:"Modern Bathroom Organizer",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/US95e1b0a8c1f8ad/design/2025-02-05_2c663f44c88c1.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1076011-modern-bathroom-organizer",downloads:"9.6k",likes:"8.3k"},
+  {id:34,title:"Angel",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/US323c4df9f55e77/design/2026-01-07_cfe3b659e7cd48.jpeg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2213429-angel",downloads:"3.1k",likes:"1.6k"},
+  {id:35,title:"Vase for Unique Home Decor",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/USfd8b105f83ad7b/design/2025-02-08_097aa981ad2a1.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1085532-vase-for-unique-home-decor",downloads:"3.9k",likes:"2.1k"},
+  {id:36,title:"Decoration Set: Vase + Candle Holder",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/USb8f8926ecdd434/design/c00d5c0632bb7fac.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2367309-decoration-set-1-vase-candle-holder-tray-q_craft",downloads:"4.7k",likes:"3k"},
+  {id:37,title:"Daisy Home Decor",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/US5f2bf4a8d80572/design/2025-06-07_316a27141009a8.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1496045-daisy-home-decor",downloads:"1.4k",likes:"1.1k"},
+  {id:38,title:"Decorative Home Pedestal",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/USc1308ca0f717d3/design/bdcff7abde528e07.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2557367-decorative-home-pedestal",downloads:"3.1k",likes:"1.5k"},
+  {id:39,title:"Melting Wall Shelf",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/US5104514e08055d/design/2026-01-06_a45a2ecbdbd2c8.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2211015-melting-wall-shelf-dripping-modern-shelf",downloads:"3.6k",likes:"2.8k"},
+  {id:40,title:"Coins Planter with Hidden Drip Tray",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/US176cdaec3e2888/design/2024-02-18_11abd9c458221.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/192297-coins-planter-with-hidden-drip-tray",downloads:"8.8k",likes:"4.7k"},
+  {id:41,title:"Kitchen Sponge Holder",category:"decor",img:"https://media.printables.com/media/prints/109107/images/1079776_1babce43-0284-4a88-af67-77e99c5ce662/55868878fc4fe211daf857261b422584_display_large_10.jpg",url:"https://www.printables.com/model/109107",downloads:"96",likes:"15"},
+  {id:42,title:"Japandi Paper Towel Holder",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/USb4dfe19ca75992/design/b032df9dc3cffc5f.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2377795-japandi-paper-towel-holder",downloads:"6.9k",likes:"4.1k"},
+  {id:43,title:"Parametric Decorative Names",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/USf283b66542b4e3/design/2025-06-19_2adbfe5d6834a.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1510037-parametric-decorative-names",downloads:"5.6k",likes:"1.9k"},
+  {id:44,title:"Twisting Pillars Vase",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/USb83f487dc7984f/design/2024-01-13_dd35d8f0e5f62.gif?x-oss-process=image/resize,w_800/format,jpeg",url:"https://makerworld.com/en/models/138113-twisting-pillars-vase",downloads:"17.4k",likes:"3.3k"},
+  {id:45,title:"The Claudia Planter – Botany Chic",category:"decor",img:"https://makerworld.bblmw.com/makerworld/model/US1ecfebe77eac10/design/2025-05-11_f539f398bc6c48.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1399976-the-claudia-planter-a-botany-chic-creation-decor",downloads:"4.6k",likes:"1.8k"},
+  // KEYCHAINS — K1…K15
+  {id:46,title:"Trophy Cup Keychain",category:"keychains",img:"https://media.printables.com/media/prints/427203/images/3535208_a497be28-af19-4adb-97c6-899ffe232896/be2da2e3-9a8e-4f77-86a9-4904cacefb97.jpeg",url:"https://www.printables.com/model/427203",downloads:"192",likes:"53"},
+  {id:47,title:"Champion's Cup Keychain",category:"keychains",img:"https://media.printables.com/media/prints/418870/images/3478070_7fb3c7e7-3c70-422a-97c0-bb5933c19b5a/2e619b08-aba9-40b9-a305-1c68eea968ab.jpeg",url:"https://www.printables.com/model/418870",downloads:"156",likes:"14"},
+{id:49,title:"Flexi Gecko Keychain",category:"keychains",img:"https://media.printables.com/media/prints/aef0f025-1f13-41f8-b099-6d563f238825/images/11593822_09d7d023-6338-467c-bdad-d7616b97d0d7_041b6416-4384-4f15-852f-05fe17e0f629/2001352946920140800.png",url:"https://www.printables.com/model/1537993",downloads:"15.9k",likes:"1.8k"},
+  {id:50,title:"Puzzle Piece Keychain",category:"keychains",img:"https://media.printables.com/media/prints/612813/images/4865082_4b84f550-d035-475e-b0bb-bac544b330c7_495dfd00-1556-464a-8952-ced95d4ec130/10_1697179785992.jpeg",url:"https://www.printables.com/model/612813",downloads:"589",likes:"49"},
+  {id:51,title:"Sneaker Keychain",category:"keychains",img:"https://media.printables.com/media/prints/1131867/images/8539328_7813bed3-0ed9-46d6-894d-72c2be0ad8dd_27d85b53-6b85-477c-b5c1-3a22414c4e44/cjn3mtjc.png",url:"https://www.printables.com/model/1131867",downloads:"12",likes:"0"},
+  {id:52,title:"Fox Articulated Keychain",category:"keychains",img:"https://media.printables.com/media/prints/1130888/images/8532917_6668ba73-a3a1-41b1-84b4-aabb1686b95a_cdd92092-3e66-48d7-a34a-b093925b51d4/foxes_1.jpg",url:"https://www.printables.com/model/1130888",downloads:"427",likes:"57"},
+  {id:53,title:"Flexi Rex Keychain",category:"keychains",img:"https://media.printables.com/media/prints/175046/images/1643182_4174f8f6-dca1-44bd-9f37-34bf6064ef0b/img_20220420_115801_5.jpg",url:"https://www.printables.com/model/175046",downloads:"16.4k",likes:"2.1k"},
+  {id:54,title:"Flexi Rabbit Keychain",category:"keychains",img:"https://media.printables.com/media/prints/164350/images/1526453_2573be3f-1692-459e-9d8f-7ac361eb3fd5/bild2.jpg",url:"https://www.printables.com/model/164350",downloads:"1k",likes:"158"},
+  {id:55,title:"Geometric Lion Keychain",category:"keychains",img:"https://media.printables.com/media/prints/861814/images/8090938_66dd9380-1b53-43ec-a695-881a1900d69a_bf214288-cb3a-4b6e-bc80-3c4ebdb9a93c/ownmade-geometriclionkeychain01.png",url:"https://www.printables.com/model/861814",downloads:"25",likes:"4"},
+  {id:56,title:"Mini Cup Keychain",category:"keychains",img:"https://media.printables.com/media/prints/0b686750-8a1d-40f6-a96f-a70646c95f9e/images/12304538_824154e2-e4aa-4833-a9bb-087b9a6bf5c1_7cf9706e-1a62-4293-aade-2f7cb605f0f3/img_20260313_232021_620.jpg",url:"https://www.printables.com/model/1636946",downloads:"27",likes:"5"},
+  {id:57,title:"Dumbbell Keychain – Print in Place",category:"keychains",img:"https://makerworld.bblmw.com/makerworld/model/US8d000405173b64/design/2025-02-08_d9811082b5dc6.jpeg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1085378-dumbbell-keychain-print-in-place",downloads:"4.9k",likes:"2k"},
+  {id:58,title:"Keychain Display – Rotating & Stackable",category:"keychains",img:"https://makerworld.bblmw.com/makerworld/model/US8063fee2aad493/design/2024-02-20_7f2c56931d737.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/194146-keychain-display-rotating-and-stackable",downloads:"30.3k",likes:"14.6k"},
+  {id:59,title:"The QuickDraw Keychain – Mini Pistol",category:"keychains",img:"https://makerworld.bblmw.com/makerworld/model/USff901ca70b8a0b/design/2026-01-19_932d6280497a88.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2234929-the-quickdraw-keychain-mini-pistol-holster",downloads:"5.3k",likes:"1.8k"},
+  {id:60,title:"Name Keychain +1000",category:"keychains",img:"https://makerworld.bblmw.com/makerworld/model/US9d4b11840817bb/design/2025-02-18_43839a8716db3.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1109066-name-keychain-1000",downloads:"5.4k",likes:"2k"},
+  // PLANTERS — P1…P15
+  {id:61,title:"Drift Planter",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/USa84bb5eba622af/design/2024-12-06_fe3880b84c46c.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/855454-drift-planter",downloads:"20.1k",likes:"8.4k"},
+  {id:62,title:"Planter with Legs",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/US73c94a0ca22b7c/design/2024-03-27_204b6b68c0c6b.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/396295-planter-with-legs",downloads:"30.7k",likes:"10.8k"},
+  {id:63,title:"Planter Fractura",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/US1238ccf2eac92/design/2025-01-18_fb625002ffcc7.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1003509-planter-fractura",downloads:"6.4k",likes:"3.5k"},
+  {id:64,title:"Rope Planter",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/USe8d2fc25595315/design/2025-08-21_ba23594f4dbbf.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1719881-rope-planter",downloads:"2.8k",likes:"1.4k"},
+  {id:65,title:"Bonsai Planter",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/US8414392cfc144/design/4357672b0bae1fb7.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2541712-bonsai-planter",downloads:"1k",likes:"1.8k"},
+  {id:66,title:"Planter Cat",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/US66fd02d6c32357/design/2025-10-19_4affaad6c32e48.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1904396-planter-cat",downloads:"4.1k",likes:"2.6k"},
+  {id:67,title:"Nest Planter",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/US2ad8f75deeba14/design/2025-02-08_f6880215cb428.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1085626-nest-planter",downloads:"11k",likes:"6.5k"},
+  {id:68,title:"David Planter",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/USec3879c000c44d/design/2023-12-11_8437745d1a3d2.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/89774-david-planter",downloads:"9k",likes:"5.1k"},
+  {id:69,title:"THINKER PLANTER",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/US7b9c79e353333f/design/2025-04-21_52216a9af3247.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1343691-thinker-planter",downloads:"4.5k",likes:"2.6k"},
+{id:71,title:"Tree Stump Planter",category:"planters",img:"https://media.printables.com/media/prints/121117/images/1174333_bf7723ec-1564-4c07-866b-7d8a8c634a26/f50832cc-92e4-490d-beef-6c4977cf49a5.jpeg",url:"https://www.printables.com/model/121117",downloads:"1k",likes:"229"},
+  {id:72,title:"Kairo Planter",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/US3311b52f447eea/design/2025-03-31_6af44aa363ab5.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1271167-kairo-planter",downloads:"6.1k",likes:"2.6k"},
+  {id:73,title:"Japandi Planter",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/US5d30fc77cd308e/design/2025-04-09_39828c9e8b45d8.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1303074-japandi-planter",downloads:"4k",likes:"1.9k"},
+  {id:74,title:"Couch Planter",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/US262820e9082f0e/design/bb2d72e54977f579.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2425156-couch-planter",downloads:"31.7k",likes:"-"},
+  {id:75,title:"Coins Planter + Hidden Drip Tray",category:"planters",img:"https://makerworld.bblmw.com/makerworld/model/US176cdaec3e2888/design/2024-02-18_11abd9c458221.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/192297-coins-planter-with-hidden-drip-tray",downloads:"8.8k",likes:"4.7k"},
+  // PHONE STANDS — PS1…PS15
+  {id:76,title:"Phone Stand",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/USd29c5fed2a3245/design/2025-10-19_181b53bb4cf538.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1903097-phone-stand",downloads:"15.7k",likes:"-"},
+  {id:77,title:"Phone Stand (Classic)",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/USedc5387b4b8b54/design/2024-10-20_5e4b3349950a8.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/717070-phone-stand",downloads:"17.2k",likes:"5k"},
+  {id:78,title:"Phone Stand (Compact)",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/US1fe3260294cd56/design/2024-11-24_69c4543ac71f8.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/819327-phone-stand",downloads:"64.7k",likes:"11.3k"},
+  {id:79,title:"THE BEST PHONE STAND",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/US4fb90c25038ae8/design/2025-11-09_bfe802a67d7dd.jpeg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1976503-the-best-phone-stand",downloads:"8.8k",likes:"-"},
+  {id:80,title:"Cat Phone Stand",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/DSM00000002094802/design/2025-12-09_ae834e3585ba1.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2094802-cat-phone-stand",downloads:"7.2k",likes:"2.2k"},
+  {id:81,title:"Phone Stand (Slim)",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/USd33e0cfdad8eb3/design/2024-02-22_7bc2d0ff93c0e.jpeg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/197975-phone-stand",downloads:"7.4k",likes:"-"},
+  {id:82,title:"Pocket Phone Stand (Print in Place)",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/DSM00000002371884/design/ce26b5aeec4a2921.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2371884-pocket-phone-stand-print-in-place",downloads:"18k",likes:"5k"},
+  {id:83,title:"Bambu Lab Mini Phone Stand",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/USd25bcb7cc87632/design/2024-10-09_bfcbc0832331a.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/697632-bambu-lab-mini-phone-stand",downloads:"6.5k",likes:"1.8k"},
+  {id:84,title:"Octopus Phone Stand",category:"phone_stands",img:"https://media.printables.com/media/prints/145494/images/1374522_84c19a31-5749-43c7-9718-7043deb1163f/f147b0ea699e3fec6f6fa6e92af6aa0f_display_large_14.jpg",url:"https://www.printables.com/model/145494",downloads:"530",likes:"73"},
+  {id:85,title:"Phone Stand (Angled)",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/USe2ec635e4c78f5/design/2024-07-10_4224876b7e80a.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/534691-phone-stand",downloads:"7.4k",likes:"-"},
+  {id:86,title:"Onami Phone Stand",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/US26ef3dc826d836/design/2025-10-01_defa83d3fe8258.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1688003-onami-phone-stand",downloads:"14.7k",likes:"3.4k"},
+  {id:87,title:"Kawaii-Style Cat Phone Stand",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/US931592a14e2589/design/2025-09-07_14593a0d045d88.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1772567-kawaii-style-cat-phone-stand",downloads:"5k",likes:"2.5k"},
+  {id:88,title:"Minimalist Phone Stand",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/US9721a7d396baa5/design/2025-07-28_a128d8efdd6a18.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1647795-minimalist-phone-stand",downloads:"12.4k",likes:"1.9k"},
+  {id:89,title:"iPhone/Tablet Stand",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/US18ec992bd4f653/design/2024-01-29_8de2485f7f563.webp?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/162705-iphone-tablet-stand",downloads:"8.7k",likes:"-"},
+  {id:90,title:"TILT PHONE STAND",category:"phone_stands",img:"https://makerworld.bblmw.com/makerworld/model/USe66e28615d97c3/design/2024-04-05_147409d207311.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/415150-tilt-phone-stand",downloads:"23.8k",likes:"4.9k"},
+  // VASES — V1…V15
+  {id:91,title:"Vase (Modern)",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/USad1b48b0820b77/design/2025-07-10_86b78bda8f7cd8.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1593758-vase",downloads:"8.2k",likes:"1.8k"},
+  {id:92,title:"Vase (Classic)",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/UScc804ab30d42a3/design/2023-12-30_fd0b0b006c127.webp?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/114898-vase",downloads:"26.2k",likes:"4.3k"},
+  {id:93,title:"Vase with Roses & Stems",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/USe83a7a59b0ea13/design/2025-04-04_fbf35206d646.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1283807-vase-with-roses-and-stems-flowers-bouquet",downloads:"11.2k",likes:"2.7k"},
+  {id:94,title:"Modern Japandi Vase",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/US91bf7705f7b5ae/design/2025-09-19_45c5bddfa0208.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1783622-modern-japandi-vase",downloads:"10.4k",likes:"2.9k"},
+  {id:95,title:"Modern Vase",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/US8056e5dbc00fe1/design/e56a093c6f0ce6d5.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/2314222-modern-vase",downloads:"6.6k",likes:"2.8k"},
+  {id:96,title:"Vase for Bold Decor",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/USfb77007b9aee66/design/2025-02-06_2c078f53908c7.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1079729-vase-for-bold-decor",downloads:"19.1k",likes:"7.4k"},
+  {id:97,title:"Vanta Vase",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/USf7d467519aa112/design/2025-05-30_f5644cbe8aa128.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1469611-vanta-vase",downloads:"21k",likes:"8.1k"},
+  {id:98,title:"Spiral Vase",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/USe1ada80f59acba/design/2024-06-01_2819a4adade04.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/481588-spiral-vase",downloads:"13.6k",likes:"2.2k"},
+  {id:99,title:"Shizu Japandi Vase",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/US5c25d8e674ed1f/design/2025-08-03_22ec4b76775e48.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1665014-shizu-japandi-vase",downloads:"12.4k",likes:"4.9k"},
+  {id:100,title:"Modern Twisted Vase",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/US68a58e71b9dda1/design/2025-02-02_f1f0cf913ca81.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1064963-modern-twisted-vase",downloads:"3.6k",likes:"1.1k"},
+  {id:101,title:"Voronoi Vase",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/US75a6d468de01a3/design/2025-06-19_cbf5294c9a5508.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1531566-voronoi-vase",downloads:"9.8k",likes:"3.9k"},
+  {id:102,title:"Vase (Tall)",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/US822ddb5a178c8/design/2024-11-07_e031068e53972.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/745895-vase",downloads:"18.5k",likes:"2.3k"},
+  {id:103,title:"Decorative Vase – Two Sizes",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/US9800c83cf2a326/design/2024-08-19_fb927f1709b66.jpg?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/596788-decorative-vase-in-two-sizes",downloads:"13.1k",likes:"4.2k"},
+  {id:104,title:"Vase (Wide)",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/USd731447d39ce4a/design/2025-09-12_5fdba717b5d108.png?x-oss-process=image/resize,w_800/format,webp",url:"https://makerworld.com/en/models/1788729-vase",downloads:"12.3k",likes:"1.2k"},
+  {id:105,title:"Twisting Pillars Vase",category:"vases",img:"https://makerworld.bblmw.com/makerworld/model/USb83f487dc7984f/design/2024-01-13_dd35d8f0e5f62.gif?x-oss-process=image/resize,w_800/format,jpeg",url:"https://makerworld.com/en/models/138113-twisting-pillars-vase",downloads:"17.4k",likes:"3.3k"},
+  // MAKERLAB APPS — APP1…APP12
+  {id:106,title:"PrintU",category:"makerlab_apps",desc:"From image to figurine, crafted in unique styles.",img:"https://makerworld.bblmw.com/makerworld/makerlab/content-generator/figurine/images/printU_card_816x492.png",url:"https://makerworld.com/en/makerlab/printU",downloads:"-",likes:"-"},
+  {id:107,title:"Image to 3D Model",category:"makerlab_apps",desc:"Generate a 3D model from one image with the revolutionary AI tool.",img:"https://makerworld.bblmw.com/makerworld/makerlab/generator/image-to-3d_516x344.png",url:"https://makerworld.com/en/makerlab/image-to-3d",downloads:"-",likes:"-"},
+  {id:108,title:"Flexi Toy Maker",category:"makerlab_apps",desc:"Where images bend into 3D Fun! Let's Begin.",img:"https://makerworld.bblmw.com/makerworld/makerlab/content-generator/flexi/card-large-1.png",url:"https://makerworld.com/en/makerlab/flexi",downloads:"-",likes:"-"},
+  {id:109,title:"Relief Sculpture Maker",category:"makerlab_apps",desc:"Create Custom 3D Reliefs from Any Image.",img:"https://makerworld.bblmw.com/makerworld/makerlab/content-generator/reliefv2/relief_cover1.png",url:"https://makerworld.com/en/makerlab/relief",downloads:"-",likes:"-"},
+  {id:110,title:"Make My Statue",category:"makerlab_apps",desc:"Turn Your Portrait into a Lifelike 3D Masterpiece.",img:"https://makerworld.bblmw.com/makerworld/makerlab/generator/statue_main.png",url:"https://makerworld.com/en/makerlab/statue",downloads:"-",likes:"-"},
+  {id:111,title:"PrintMon Maker",category:"makerlab_apps",desc:"Craft Your Own Fantasy Creatures for 3D Printing.",img:"https://makerworld.bblmw.com/makerworld/makerlab/generator/printMon_main.png",url:"https://makerworld.com/en/makerlab/printmon",downloads:"-",likes:"-"},
+  {id:112,title:"Make My Lithophane",category:"makerlab_apps",desc:"Where treasured memories find their form in light.",img:"https://makerworld.bblmw.com/makerworld/makerlab/generator/lithophane-large-1.png",url:"https://makerworld.com/en/makerlab/lithophane",downloads:"-",likes:"-"},
+  {id:113,title:"Make My Desk Organizer",category:"makerlab_apps",desc:"Design your desk organizer to perfectly fit your needs.",img:"https://makerworld.bblmw.com/makerworld/makerlab/generator/organizer_main.png",url:"https://makerworld.com/en/makerlab/organizer",downloads:"-",likes:"-"},
+  {id:114,title:"Image to Keychain",category:"makerlab_apps",desc:"Turn images into keychains, bookmarks & more.",img:"https://makerworld.bblmw.com/makerworld/makerlab/generator/vec-large-1.png",url:"https://makerworld.com/en/makerlab/keychain",downloads:"-",likes:"-"},
+  {id:115,title:"Parametric Model Maker",category:"makerlab_apps",desc:"Customize, download, and print parametric 3D models.",img:"https://makerworld.bblmw.com/makerworld/makerlab/generator/parametric_model_maker_main_nameplate.png",url:"https://makerworld.com/en/makerlab/parametric",downloads:"-",likes:"-"},
+  {id:116,title:"Make My Vase",category:"makerlab_apps",desc:"Craft your dream vase by clicks.",img:"https://makerworld.bblmw.com/makerworld/makerlab/generator/make_my_vase_main_white_spiral.png",url:"https://makerworld.com/en/makerlab/vase",downloads:"-",likes:"-"},
+  {id:117,title:"Make My Sign",category:"makerlab_apps",desc:"Name plate, badge, sign, light box, anything flat.",img:"https://makerworld.bblmw.com/makerworld/makerlab/generator/make_my_sign_main_name_card.png",url:"https://makerworld.com/en/makerlab/sign",downloads:"-",likes:"-"}
+];
+
+/* ─── Compute codes per category ─── */
+const catCounters = {};
+PRODUCTS.forEach(p => {
+  catCounters[p.category] = (catCounters[p.category] || 0) + 1;
+  p.code = CATEGORY_PREFIX[p.category] + catCounters[p.category];
+});
+
+/* ─── STATE ─── */
+let activeCat = 'all';
+let searchTerm = '';
+
+/* ─── CATEGORY ORDER for Netflix rows ─── */
+const CAT_ORDER = ['makerlab_apps','fidget_toys','organizers','decor','keychains','planters','phone_stands','vases'];
+
+/* ─── RENDER ─── */
+function getFiltered() {
+  return PRODUCTS.filter(p => {
+    const matchCat = activeCat === 'all' || activeCat === 'favorites'
+      ? (activeCat === 'favorites' ? favorites.includes(p.id) : true)
+      : p.category === activeCat;
+    const q = searchTerm.toLowerCase();
+    const matchSearch = !q ||
+      p.title.toLowerCase().includes(q) ||
+      p.code.toLowerCase().includes(q) ||
+      (CATEGORY_LABELS[p.category] || '').toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
+}
+
+function isLanding() {
+  return activeCat === 'all' && !searchTerm;
+}
+
+function isFavoritesEmpty(){
+  return activeCat === 'favorites' && favorites.length === 0;
+}
+
+function renderAll() {
+  if (isLanding()) {
+    renderNetflix();
+    document.getElementById('netflixWrap').style.display = 'block';
+    document.getElementById('gridWrap').style.display = 'none';
+  } else {
+    const list = getFiltered();
+    const empty = document.getElementById('emptyMsg');
+    if(activeCat === 'favorites' && favorites.length === 0){
+      document.getElementById('grid').innerHTML = '';
+      empty.innerHTML = `<div class="empty-icon">❤️</div><p>${t('favEmpty')}</p>`;
+      empty.style.display = 'block';
+    } else {
+      empty.innerHTML = `<div class="empty-icon">🔍</div><p>${t('noProducts')}</p>`;
+      renderGrid(list);
+    }
+    document.getElementById('netflixWrap').style.display = 'none';
+    document.getElementById('gridWrap').style.display = 'block';
+  }
+}
+
+/* Netflix rows */
+function renderNetflix() {
+  const wrap = document.getElementById('netflixWrap');
+  wrap.innerHTML = CAT_ORDER.map(cat => {
+    const items = PRODUCTS.filter(p => p.category === cat);
+    return `
+      <div class="netflix-row">
+        <div class="netflix-row-header">
+          <div class="netflix-row-title">${CATEGORY_LABELS[cat]}</div>
+          <div class="netflix-row-count">${items.length} ${t('products')}</div>
+          <button class="netflix-row-see-all" onclick="filterTo('${cat}')">${t('viewAll')}</button>
+        </div>
+        <div class="netflix-scroll">
+          ${items.map((p,i) => `
+            <div class="netflix-card" onclick="openModal(${p.id})" title="${p.title}">
+              <div class="netflix-num">${p.code}</div>
+              <button class="fav-btn ${isFav(p.id)?'active':''}" data-id="${p.id}"
+                onclick="toggleFav(${p.id},event)"
+                title="${isFav(p.id)?'Eltávolítás a kedvencekből':'Hozzáadás a kedvencekhez'}">
+                ${isFav(p.id)?'❤️':'🤍'}
+              </button>
+              <img class="netflix-card-img" src="${p.img}" alt="${p.title}" loading="lazy" onerror="this.style.background='#1a1a24'"/>
+              <div class="netflix-card-body">
+                <div class="netflix-card-title">${p.title}</div>
+                <div class="netflix-card-stats">⬇ ${p.downloads}${p.likes !== '-' ? ' · ♥ ' + p.likes : ''}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="netflix-row-divider"></div>
+      </div>`;
+  }).join('');
+}
+
+/* Grid view */
+function renderGrid(list) {
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('emptyMsg');
+  if (!list.length) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.innerHTML = list.map((p,i) => `
+    <div class="card" style="animation-delay:${i*0.04}s;position:relative" onclick="openModal(${p.id})">
+      <button class="fav-btn ${isFav(p.id)?'active':''}" data-id="${p.id}"
+        onclick="toggleFav(${p.id},event)"
+        title="${isFav(p.id)?'Eltávolítás a kedvencekből':'Hozzáadás a kedvencekhez'}">
+        ${isFav(p.id)?'❤️':'🤍'}
+      </button>
+      <img class="card-img" src="${p.img}" alt="${p.title}" loading="lazy" onerror="this.style.background='#1a1a24'"/>
+      <div class="card-body">
+        <div class="card-code">${p.code}</div>
+        <div class="card-cat">${CATEGORY_LABELS[p.category]}</div>
+        <div class="card-title">${p.title}</div>
+        <div class="card-stats">⬇ ${p.downloads}${p.likes !== '-' ? ' · ♥ ' + p.likes : ''}</div>
+        <button class="card-btn" onclick="event.stopPropagation();openModal(${p.id})">${t('detailsOrder')}</button>
+      </div>
+    </div>`).join('');
+}
+
+/* Filter to category */
+function filterTo(cat) {
+  activeCat = cat;
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.cat === cat);
+  });
+  renderAll();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ─── MODAL ─── */
+function openModal(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  currentModalId = id;
+  document.getElementById('modalImg').src = p.img;
+  document.getElementById('modalImg').alt = p.title;
+  document.getElementById('modalCode').textContent = p.code;
+  document.getElementById('modalCat').textContent = CATEGORY_LABELS[p.category];
+  document.getElementById('modalTitle').textContent = p.title;
+  document.getElementById('modalDesc').textContent = p.desc || CATEGORY_DESCS[p.category];
+  document.getElementById('modalMakerLink').href = p.category === 'makerlab_apps' ? 'https://makerworld.com/en/makerlab' : p.url;
+  // fav button state
+  const favBtn = document.getElementById('modalFavBtn');
+  favBtn.textContent = isFav(id) ? '❤️' : '🤍';
+  favBtn.classList.toggle('active', isFav(id));
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function openOrderModal() {
+  document.getElementById('orderOverlay').classList.add('open');
+}
+function closeOrderModal() {
+  document.getElementById('orderOverlay').classList.remove('open');
+}
+
+/* ─── EVENTS ─── */
+document.getElementById('tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab');
+  if (!btn) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  activeCat = btn.dataset.cat;
+  renderAll();
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchTerm = e.target.value;
+  // Reset to "all" tab visually when searching
+  if (searchTerm) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.tab[data-cat="all"]').classList.add('active');
+    activeCat = 'all';
+  }
+  renderAll();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeOrderModal(); }
+});
+
+/* ─── INIT ─── */
+updateFavBadge();
+updateCartBadge();
+applyLang();
+
+// Firebase auth state listener
+firebase.auth().onAuthStateChanged(fbUser => {
+  if(fbUser){
+    loginUser(fbUser);
+  } else {
+    currentUser = null;
+    updateUserUI();
+  }
+});
+</script>
+</body>
+</html>
